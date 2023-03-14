@@ -1,0 +1,45 @@
+@options
+@packages
+-encoding
+'UTF-8'
+-protected
+-source
+'1.8'
+-sourcepath
+'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2023. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'datastructures 1.0-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' 'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'datastructures 1.0-SNAPSHOT API'
+com.noambechhofer.datastructures
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\src\main\java = 1678766927317
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\allclasses-index.html = 1678783290512
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\allpackages-index.html = 1678783290516
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\deprecated-list.html = 1678783290495
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\element-list = 1678783290449
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\help-doc.html = 1678783290552
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\index-all.html = 1678783290538
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\index.html = 1678783290541
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\jquery-ui.overrides.css = 1678783290604
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\member-search-index.js = 1678783290522
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\module-search-index.js = 1678783290517
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\overview-tree.html = 1678783290489
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\package-search-index.js = 1678783290519
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\script.js = 1678783290559
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\search.js = 1678783290563
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\stylesheet.css = 1678783290557
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\tag-search-index.js = 1678783290522
+C:\Users\noamb\OneDrive\Programming\data structures\Java\datastructures\target\site\apidocs\type-search-index.js = 1678783290520
