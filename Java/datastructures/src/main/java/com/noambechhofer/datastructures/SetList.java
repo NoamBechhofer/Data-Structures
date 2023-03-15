@@ -3,6 +3,7 @@
 
 package com.noambechhofer.datastructures;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -201,46 +202,100 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Returns an array containing all of the elements in this SetList in proper
+     * sequence (from first to last element).
+     * <p>
+     * The returned array will be "safe" in that no references to it are maintained
+     * by this SetList. The caller is thus free to modify the returned array.
+     * 
+     * @return an array containing all of the elements in this list in proper
+     *         sequence (from first to last element).
      */
     @Override
     public Object[] toArray() {
-        Object[] ret = new Object[size()];
-
-        for (int i = 0; i < size(); i++) {
-            ret[i] = get(i);
-        }
-
-        return ret;
+        return toArray(new Object[0]);
     }
 
     /**
-     * TODO: javadoc
+     * Returns an array containing all of the elements in this SetList in proper
+     * sequence (from first to last element); the runtime type of the returned array
+     * is that of the specified array. If the SetList fits in the specified array,
+     * it is returned therein. Otherwise, a new array is allocated with the runtime
+     * type of the specified array and the size of this SetList.
+     * <p>
+     * If the SetList fits in the specified array with room to spare (i.e., the
+     * array has more elements than the SetList), the element in the array
+     * immediately following the end of the SetList is set to {@code null}. (This is
+     * useful in determining the length of the SetList <i>only</i> if the caller
+     * knows that the list does not contain any null elements.)
+     * <p>
+     * The returned array will be "safe" in that no references to it are maintained
+     * by this SetList. The caller is thus free to modify the returned array.
+     * <p>
+     * Like the {@link #toArray()} method, this method acts as bridge between
+     * array-based and collection-based APIs. Further, this method allows precise
+     * control over the runtime type of the output array, and may, under certain
+     * circumstances, be used to save allocation costs.
+     * <p>
+     * Suppose {@code x} is a list known to contain only strings. The following code
+     * can be used to dump the list into a newly allocated array of {@code String}:
+     * <p>
+     * {@code String[] y = x.toArray(new String[0]);}
+     * <p>
+     * Note that {@code toArray(new Object[0])} is identical in function to
+     * {@code toArray()}.
+     * 
+     * @param T the runtime type of the array to contain the collection
+     * @param a the array into which the elements of this SetList are to be stored,
+     *          if it is big enough; otherwise, a new array of the same runtime type
+     *          is allocated for this purpose.
+     * 
+     * @return an array containing the elements of this SetList.
+     * 
+     * @throws ArrayStoreException  if the runtime type of the specified array is
+     *                              not a supertype of the runtime type of every
+     *                              element in this SetList
+     * @throws NullPointerException if the specified array is null
      */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        Object[] ret = a;
+        T[] arr = a;
 
         if (a.length < size()) {
-            ret = new Object[size()];
+            arr = (T[]) Array.newInstance(a.getClass().getComponentType(), size());
         }
 
         for (int i = 0; i < size(); i++) {
-            ret[i] = get(i);
-        }
-        for (int i = size(); i < a.length; i++)
-            ret[i] = null;
+            E curr = get(i);
 
-        return (T[]) ret;
+            if (!a.getClass().getComponentType().isAssignableFrom(curr.getClass()))
+                throw new ArrayStoreException();
+
+            arr[i] = (T) curr;
+        }
+
+        for (int i = size(); i < a.length; i++)
+            arr[i] = null;
+
+        return arr;
     }
 
     /**
-     * TODO: javadoc
+     * Appends the specified element to the end of this SetList if it is not already
+     * present. The presence of the item is based on {@code ==} equality and
+     * {@code .equals()} equality. More formally, adds the specified element
+     * {@code e} to this SetList if the SetList contains no element {@code e2} such
+     * that {@code e2 == e || (e != null && e.equals(e2))}. If this set already
+     * contains the element, the call leaves the set unchanged and returns
+     * {@code false}. This ensures that SetLists never contain duplicate elements.
      * <p>
-     * Runs in {@code O(n)} time.
+     * Unlike {@link #add(int, Object)}, insertion of a duplicate does not throw a
+     * {@link DuplicateElementException}, and instead returns false.
      * 
-     * @throws DuplicateElementException if the elemetn is already present
+     * @param e element to be appended to this list
+     * 
+     * @return true if the element is not already present in the list.
      */
     @Override
     public boolean add(E e) {
@@ -253,9 +308,19 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Inserts the specified element at the specified position in this SetList.
+     * Shifts the element currently at that position (if any) and any subsequent
+     * elements to the right (adds one to their indices).
+     * <p>
+     * Unlike {@link #add(Object)}, insertion of a duplicate throws a
+     * {@link DuplicateElementException}.
+     * 
+     * @param index   index at which the specified element is to be inserted
+     * @param element element to be inserted
      * 
      * @throws DuplicateElementException if the element is already present
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 ||
+     *                                   index > size())
      */
     @Override
     public void add(int index, E element) {
@@ -301,9 +366,17 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
-     * <p>
-     * Runs in {@code O(n)} time.
+     * Removes the first occurrence of the specified element from this SetList, if
+     * it is present. If this SetList does not contain the element, it is unchanged.
+     * More formally, removes an element {@code e} such that
+     * {@code (o==null ? e==null : o.equals(e))}, if this SetList contains such an
+     * element. Returns {@code true} if this SetList contained the element (or
+     * equivalently, if this SetList changed as a result of the call). (This SetList
+     * will not contain the element once the call returns.)
+     * 
+     * @param o element to be removed from this SetList, if present
+     * 
+     * @return {@code true} if this list contained the specified element
      */
     @Override
     public boolean remove(Object o) {
@@ -350,7 +423,6 @@ public class SetList<E> implements List<E>, Set<E> {
         return map.get(index);
     }
 
-    // TODO: make sure all throws are in the javadoc
     /**
      * TODO: javadoc
      * 

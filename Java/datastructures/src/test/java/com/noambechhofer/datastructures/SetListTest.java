@@ -3,7 +3,6 @@ package com.noambechhofer.datastructures;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
@@ -172,6 +171,30 @@ public class SetListTest {
 
     @Test
     public void testToArray2() {
+        SetList<Integer> sl = new SetList<>();
 
+        sl.add(1);
+        sl.add(2);
+
+        final String[] strArrSmall = new String[0];
+        assertThrows(ArrayStoreException.class, () -> sl.toArray(strArrSmall));
+
+        final String[] strArrBig = new String[2];
+        assertThrows(ArrayStoreException.class, () -> sl.toArray(strArrBig));
+
+        final Object[] objArr = sl.toArray(new Object[10]);
+        for (int i = 2; i < objArr.length; i++)
+            assertNull(objArr[i]);
+
+        final String[] nullArray = null;
+        assertThrows(NullPointerException.class, () -> sl.toArray(nullArray));
+
+        SetList<String> strList = new SetList<>();
+        strList.add("This");
+        strList.add("is");
+        strList.add("a");
+        strList.add("test.");
+
+        String[] strArrGood = strList.toArray(new String[0]);
     }
 }
