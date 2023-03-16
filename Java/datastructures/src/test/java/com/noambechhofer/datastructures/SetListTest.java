@@ -195,6 +195,6 @@ public class SetListTest {
         strList.add("a");
         strList.add("test.");
 
-        String[] strArrGood = strList.toArray(new String[0]);
+        strList.toArray(new String[0]);
     }
 }

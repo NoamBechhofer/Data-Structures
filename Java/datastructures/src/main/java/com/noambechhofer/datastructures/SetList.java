@@ -15,12 +15,17 @@ import java.util.Set;
 import java.util.Spliterator;
 
 /**
+ * A union of the {@link Set} and {@link List} interfaces. Backed by a
+ * {@link HashMap<Integer, E>}.
  * The aim is to compromise by having all significant methods run in O(n)
  */
 public class SetList<E> implements List<E>, Set<E> {
     /** Maps indices to their corresponding elements */
     private HashMap<Integer, E> map;
 
+    /**
+     * Standard constructor.
+     */
     public SetList() {
         this.map = new HashMap<>();
     }
@@ -490,7 +495,15 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Returns the index of the specified element in this SetList, or -1 if this
+     * SetList does not contain the element. More formally, returns the index i such
+     * that (o==null ? get(i)==null : o.equals(get(i))), or -1 if there is no such
+     * index.
+     * 
+     * @param o element to search for
+     * 
+     * @return the index of the specified element in this SetList, or -1 if this
+     *         SetList does not contain the element
      */
     @Override
     public int indexOf(Object o) {
@@ -504,21 +517,32 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Returns the index of the specified element in this SetList, or -1 if this
+     * SetList does not contain the element. More formally, returns the index i such
+     * that (o==null ? get(i)==null : o.equals(get(i))), or -1 if there is no such
+     * index.
      * <p>
      * Because a {@code SetList} does not allow duplicates, calling this method is
      * exactly equivalent to calling {@code indexIf(o)}.
+     * 
+     * @param o element to search for
+     * 
+     * @return the index of the specified element in this SetList, or -1 if this
+     *         SetList does not contain the element
+     *
      */
     @Override
     public int lastIndexOf(Object o) {
         return indexOf(o);
     }
 
+    /** Not yet supported. */
     public Spliterator<E> spliterator() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'subList'");
     }
 
+    /** Not yet supported. */
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
         // TODO Auto-generated method stub
