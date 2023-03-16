@@ -20,6 +20,7 @@
   </properties>
 
   <dependencies>
+    <!-- junit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -42,7 +43,6 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.19.1</version>
           <dependencies>
-            <!-- junit 5 -->
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
@@ -66,10 +66,10 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
         </plugin>
-        <plugin>
+        <!-- <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
-        </plugin>
+        </plugin> -->
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>

@@ -113,6 +113,11 @@ public class SetList<E> implements List<E>, Set<E> {
             canMutate = false;
         }
 
+        /**
+         * ! USE CAUTION ! This method breaks the contract of this class by allowing
+         * duplicates. Use {@link SetList#contains(Object)} to ensure you're not
+         * inserting a duplicate.
+         */
         @Override
         public void set(E e) {
             if (!canMutate)
@@ -245,10 +250,12 @@ public class SetList<E> implements List<E>, Set<E> {
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
      * 
-     * @param T the runtime type of the array to contain the collection
-     * @param a the array into which the elements of this SetList are to be stored,
-     *          if it is big enough; otherwise, a new array of the same runtime type
-     *          is allocated for this purpose.
+     * @param <T> the runtime type of the array to contain the collection
+     * @param a   the array into which the elements of this SetList are to be
+     *            stored,
+     *            if it is big enough; otherwise, a new array of the same runtime
+     *            type
+     *            is allocated for this purpose.
      * 
      * @return an array containing the elements of this SetList.
      * 
@@ -319,7 +326,8 @@ public class SetList<E> implements List<E>, Set<E> {
      * @param element element to be inserted
      * 
      * @throws DuplicateElementException if the element is already present
-     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 ||
+     * @throws IndexOutOfBoundsException if the index is out of range (index &lt; 0
+     *                                   ||
      *                                   index > size())
      */
     @Override
@@ -389,7 +397,16 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Removes the element at the specified position in this SetList. Shifts any
+     * subsequent elements to the left (subtracts one from their indices). Returns
+     * the element that was removed from the SetList.
+     * 
+     * @param index the index of the element to be removed
+     * 
+     * @return the element previously at the specified position
+     * 
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   {@code (index &lt; 0 || index >= size())}
      */
     @Override
     public E remove(int index) {
@@ -398,14 +415,18 @@ public class SetList<E> implements List<E>, Set<E> {
 
         E ret = map.remove(index);
 
-        for (int i = index; i < size(); i++)
+        int i = index;
+        for (; i < size(); i++)
             map.put(i, get(i + 1));
+
+        map.remove(i);
 
         return ret;
     }
 
     /**
-     * TODO: javadoc
+     * Removes all of the elements from this SetList. The SetList will be empty
+     * after this call returns.
      */
     @Override
     public void clear() {
@@ -413,7 +434,12 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Returns the element at the specified position in this SetList.
+     * 
+     * @param index index of the element to return
+     * @return the element at the specified position in this list
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   {@code (index < 0 || index >= size())}
      */
     @Override
     public E get(int index) {
@@ -424,9 +450,17 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * TODO: javadoc
+     * Replaces the element at the specified position in this SetList with the
+     * specified element
+     * 
+     * @param index   index of the element to replace
+     * @param element element to be stored at the specified position
+     * 
+     * @return the element previously at the specified position
      * 
      * @throws DuplicateElementException if the element is already present
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   {@code (index < 0 || index >= size())}
      */
     @Override
     public E set(int index, E element) {
