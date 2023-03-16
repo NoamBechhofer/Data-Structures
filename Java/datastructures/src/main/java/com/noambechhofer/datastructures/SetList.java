@@ -20,16 +20,6 @@ import java.util.Spliterator;
  * The aim is to compromise by having all significant methods run in O(n)
  */
 public class SetList<E> implements List<E>, Set<E> {
-    /** Maps indices to their corresponding elements */
-    private HashMap<Integer, E> map;
-
-    /**
-     * Standard constructor.
-     */
-    public SetList() {
-        this.map = new HashMap<>();
-    }
-
     private class SetListIterator implements ListIterator<E> {
         /**
          * On a theoretical level, this points between the elements which would be
@@ -141,6 +131,16 @@ public class SetList<E> implements List<E>, Set<E> {
         }
     }
 
+    /** Maps indices to their corresponding elements */
+    private HashMap<Integer, E> map;
+
+    /**
+     * Standard constructor.
+     */
+    public SetList() {
+        this.map = new HashMap<>();
+    }
+
     /**
      * Returns the number of elements
      * 
@@ -183,29 +183,39 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * ! DO NOT INVOKE THIS METHOD !
-     * This method is supported to allow {@link Collections#sort(List)} to function
-     * on this class (and as specified by {@link List}). The {@link ListIterator} it
-     * returns has a set() method which is allowed to break the contract of this
-     * class by inserting duplicate elements.
+     * Returns a list iterator over the elements in this SetList (in proper
+     * sequence).
      * <p>
-     * Use {@link #iterator()} instead.
+     * ! N.B. the iterator's {@link SetListIterator#set(Object)} method will not
+     * enforce duplicates.
+     * 
+     * @return a list iterator over the elements in this SetList (in proper
+     *         sequence).
      */
-    @Deprecated
     @Override
     public ListIterator<E> listIterator() {
         return new SetListIterator();
     }
 
     /**
-     * ! DO NOT INVOKE THIS METHOD !
-     * This method is specified by {@link List} but should not be necessary to use.
-     * Its use is dangerous since it is allowed to break the contract of this class
-     * by inserting duplicates. See {@link #listIterator()}.
+     * Returns a list iterator over the elements in this SetList (in proper
+     * sequence), starting at the specified position in the SetList. The specified
+     * index indicates the first element that would be returned by an initial call
+     * to next. An initial call to previous would return the element with the
+     * specified index minus one.
+     * <p>
+     * ! N.B. the iterator's {@link SetListIterator#set(Object)} method will not
+     * enforce duplicates.
      * 
-     * @see SetList#listIterator()
+     * @param index index of the first element to be returned from the list iterator
+     *              (by a call to next)
+     * 
+     * @return a list iterator over the elements in this list (in proper sequence),
+     *         starting at the specified position in the list
+     * 
+     * @throws IndexOutOfBoundsException if the index is out of range (index &lt; 0
+     *                                   || index > size())
      */
-    @Deprecated
     @Override
     public ListIterator<E> listIterator(int index) {
         return new SetListIterator(index);
@@ -344,23 +354,6 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * Internal method. CALLLER MUST ENSURE THAT THE ELEMENT IS NOT ALREADY PRESENT.
-     * 
-     * Runs in O(n) because elements may need to be shunted over to make room
-     * depending on the index.
-     */
-    private void addInternal(int index, E ele) {
-        if (index < 0 || index > size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
-
-        if (index < size())
-            for (int i = size(); i > index; i--)
-                map.put(i, get(i - 1));
-
-        map.put(index, ele);
-    }
-
-    /**
      * Unsupported. Would be quite inefficient. If you really need to do this, use
      * multiple calls to {@link #add(Object)}
      */
@@ -478,23 +471,6 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /**
-     * ! This is an internal extension of the {@link #set(int, Object)} function.
-     * ! It's dangerous because it breaks the contract of this class - it will allow
-     * ! duplicates to be inserted. The utility is to allow
-     * ! {@link Collections#sort(List)} to work on this class. Use with extreme
-     * ! caution.
-     */
-    private E set(int index, E element, boolean force) {
-        if (!force)
-            set(index, element);
-
-        if (index < 0 || index >= size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
-
-        return map.put(index, element);
-    }
-
-    /**
      * Returns the index of the specified element in this SetList, or -1 if this
      * SetList does not contain the element. More formally, returns the index i such
      * that (o==null ? get(i)==null : o.equals(get(i))), or -1 if there is no such
@@ -575,10 +551,38 @@ public class SetList<E> implements List<E>, Set<E> {
     public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException("Unimplemented method 'retainAll'");
     }
-}
 
-class DuplicateElementException extends IllegalArgumentException {
-    public DuplicateElementException() {
-        super("this class does not allow the insertion of duplicate elements");
+    /**
+     * Internal method. CALLLER MUST ENSURE THAT THE ELEMENT IS NOT ALREADY PRESENT.
+     * 
+     * Runs in O(n) because elements may need to be shunted over to make room
+     * depending on the index.
+     */
+    private void addInternal(int index, E ele) {
+        if (index < 0 || index > size())
+            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+
+        if (index < size())
+            for (int i = size(); i > index; i--)
+                map.put(i, get(i - 1));
+
+        map.put(index, ele);
+    }
+
+    /**
+     * ! This is an internal extension of the {@link #set(int, Object)} function.
+     * ! It's dangerous because it breaks the contract of this class - it will allow
+     * ! duplicates to be inserted. The utility is to allow
+     * ! {@link Collections#sort(List)} to work on this class. Use with extreme
+     * ! caution.
+     */
+    private E set(int index, E element, boolean force) {
+        if (!force)
+            set(index, element);
+
+        if (index < 0 || index >= size())
+            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+
+        return map.put(index, element);
     }
 }
