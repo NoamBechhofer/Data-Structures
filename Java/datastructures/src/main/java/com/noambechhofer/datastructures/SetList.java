@@ -1,4 +1,3 @@
-// TODO: Remove all inheritDoc tags and write out full documentation
 // TODO: testing
 
 package com.noambechhofer.datastructures;
@@ -138,7 +137,7 @@ public class SetList<E> implements List<E>, Set<E> {
      * Standard constructor.
      */
     public SetList() {
-        this.map = new HashMap<>();
+        map = new HashMap<>();
     }
 
     /**
@@ -158,7 +157,7 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public boolean isEmpty() {
-        return this.map.isEmpty();
+        return map.isEmpty();
     }
 
     /**
@@ -169,7 +168,7 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public boolean contains(Object o) {
-        return this.map.containsValue(o);
+        return map.containsValue(o);
     }
 
     /**
