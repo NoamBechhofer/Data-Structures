@@ -1,0 +1,24 @@
+-encoding
+'UTF-8'
+-protected
+-source
+'1.8'
+-sourcepath
+'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2023. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'datastructures 1.0-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' 'C:/Users/noamb/OneDrive/Programming/data structures/Java/datastructures/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'datastructures 1.0-SNAPSHOT API'
