@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
@@ -54,8 +55,7 @@ public class SetList<E> implements List<E>, Set<E> {
         }
 
         public SetListIterator(int index) {
-            if (index < 0 || index > size())
-                throw new IndexOutOfBoundsException();
+            validateIndex(index);
 
             cursor = index;
             canMutate = false;
@@ -68,7 +68,11 @@ public class SetList<E> implements List<E>, Set<E> {
 
         @Override
         public E next() {
-            curr = get(cursor++);
+            try {
+                curr = get(cursor++);
+            } catch (IndexOutOfBoundsException e) {
+                throw new NoSuchElementException(e);
+            }
 
             canMutate = true;
             lastCallWasNext = true;
@@ -83,7 +87,11 @@ public class SetList<E> implements List<E>, Set<E> {
 
         @Override
         public E previous() {
-            curr = get(--cursor);
+            try {
+                curr = get(--cursor);
+            } catch (IndexOutOfBoundsException e) {
+                throw new NoSuchElementException(e);
+            }
 
             canMutate = true;
             lastCallWasNext = false;
@@ -103,8 +111,9 @@ public class SetList<E> implements List<E>, Set<E> {
 
         @Override
         public void remove() {
-            if (!canMutate)
+            if (!canMutate) {
                 throw new IllegalStateException();
+            }
 
             SetList.this.remove(curr);
             canMutate = false;
@@ -117,19 +126,38 @@ public class SetList<E> implements List<E>, Set<E> {
          */
         @Override
         public void set(E e) {
-            if (!canMutate)
+            if (!canMutate) {
                 throw new IllegalStateException();
+            }
 
-            if (lastCallWasNext)
-                SetList.this.set(cursor - 1, e, true);
-            else
-                SetList.this.set(cursor, e, true);
+            if (lastCallWasNext) {
+                set(cursor - 1, e, true);
+            } else {
+                set(cursor, e, true);
+            }
         }
 
         @Override
         public void add(E e) {
             SetList.this.add(cursor++, e);
             canMutate = false;
+        }
+
+        /**
+         * ! This is an internal extension of the {@link #set(int, Object)} function.
+         * ! It's dangerous because it breaks the contract of this class - it will allow
+         * ! duplicates to be inserted. The utility is to allow
+         * ! {@link Collections#sort(List)} to work on this class. Use with extreme
+         * ! caution.
+         */
+        private E set(int index, E element, boolean force) {
+            if (!force) {
+                SetList.this.set(index, element);
+            }
+
+            validateIndex(index);
+
+            return map.put(index, element);
         }
     }
 
@@ -293,14 +321,16 @@ public class SetList<E> implements List<E>, Set<E> {
         for (int i = 0; i < size(); i++) {
             E curr = get(i);
 
-            if (!a.getClass().getComponentType().isAssignableFrom(curr.getClass()))
+            if (!a.getClass().getComponentType().isAssignableFrom(curr.getClass())) {
                 throw new ArrayStoreException();
+            }
 
             arr[i] = (T) curr;
         }
 
-        for (int i = size(); i < a.length; i++)
+        for (int i = size(); i < a.length; i++) {
             arr[i] = null;
+        }
 
         return arr;
     }
@@ -323,8 +353,9 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public boolean add(E e) {
-        if (this.contains(e))
+        if (this.contains(e)) {
             return false;
+        }
 
         addInternal(size(), e);
 
@@ -349,8 +380,9 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public void add(int index, E element) {
-        if (map.containsValue(element))
+        if (map.containsValue(element)) {
             throw new DuplicateElementException();
+        }
 
         addInternal(index, element);
     }
@@ -388,11 +420,12 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public boolean remove(Object o) {
-        for (int i = 0; i < size(); i++)
+        for (int i = 0; i < size(); i++) {
             if (Objects.equals(o, get(i))) {
                 remove(i);
                 return true;
             }
+        }
         return false;
     }
 
@@ -410,14 +443,14 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public E remove(int index) {
-        if (index < 0 || index >= size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+        validateIndex(index);
 
         E ret = map.remove(index);
 
         int i = index;
-        for (; i < size(); i++)
+        for (; i < size(); i++) {
             map.put(i, get(i + 1));
+        }
 
         map.remove(i);
 
@@ -443,8 +476,7 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public E get(int index) {
-        if (index < 0 || index >= size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+        validateIndex(index);
 
         return map.get(index);
     }
@@ -464,10 +496,10 @@ public class SetList<E> implements List<E>, Set<E> {
      */
     @Override
     public E set(int index, E element) {
-        if (index < 0 || index >= size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
-        if (map.containsValue(element))
+        validateIndex(index);
+        if (map.containsValue(element)) {
             throw new DuplicateElementException();
+        }
 
         return map.put(index, element);
     }
@@ -484,11 +516,21 @@ public class SetList<E> implements List<E>, Set<E> {
      *         SetList does not contain the element
      */
     @Override
+    /*
+     * Suppressing warnings justification:
+     * sonarlint is complaining about the use of ==, saying that this operation
+     * places dependence on operator precedence, which is a bad practice.
+     * Sonarlint is wrong. The code is not ambiguous. I guess they just didn't
+     * program the rule to work correctly with ternary operators. I should
+     * probably open an issue on their github. Oh well.
+     */
+    @SuppressWarnings("java:S864")
     public int indexOf(Object o) {
         for (int i = 0; i < size(); i++) {
             E curr = get(i);
-            if (o == null ? curr == null : o.equals(curr))
+            if (o == null ? curr == null : o.equals(curr)) {
                 return i;
+            }
         }
 
         return -1;
@@ -515,6 +557,7 @@ public class SetList<E> implements List<E>, Set<E> {
     }
 
     /** Not yet supported. */
+    @Override
     public Spliterator<E> spliterator() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'subList'");
@@ -561,30 +604,20 @@ public class SetList<E> implements List<E>, Set<E> {
      * depending on the index.
      */
     private void addInternal(int index, E ele) {
-        if (index < 0 || index > size())
-            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+        validateIndex(index);
 
-        if (index < size())
-            for (int i = size(); i > index; i--)
+        if (index < size()) {
+            for (int i = size(); i > index; i--) {
                 map.put(i, get(i - 1));
+            }
+        }
 
         map.put(index, ele);
     }
 
-    /**
-     * ! This is an internal extension of the {@link #set(int, Object)} function.
-     * ! It's dangerous because it breaks the contract of this class - it will allow
-     * ! duplicates to be inserted. The utility is to allow
-     * ! {@link Collections#sort(List)} to work on this class. Use with extreme
-     * ! caution.
-     */
-    private E set(int index, E element, boolean force) {
-        if (!force)
-            set(index, element);
-
-        if (index < 0 || index >= size())
+    private void validateIndex(int index) {
+        if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
-
-        return map.put(index, element);
+        }
     }
 }
