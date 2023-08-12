@@ -8,6 +8,8 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 // import com.noambechhofer.datastructures.DuplicateElementException;
 
+import com.noambechhofer.datastructures.utils.DuplicateElementException;
+
 public class SetListTest {
     @Test
     public void testSort() {

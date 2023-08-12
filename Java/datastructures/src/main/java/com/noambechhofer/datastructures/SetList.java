@@ -14,6 +14,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 
+import com.noambechhofer.datastructures.utils.DuplicateElementException;
+
 /**
  * A union of the {@link Set} and {@link List} interfaces. Backed by a
  * {@link HashMap<Integer, E>}.
