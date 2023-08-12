@@ -43,10 +43,22 @@ public class Sort {
         }
     }
 
+    /**
+     * Sorts the array using insertion sort.
+     * 
+     * @param <E> type of elements in the array
+     * @param arr array to be sorted
+     */
     public static <E extends Comparable<E>> void insertionSort(E[] arr) {
         insertionSort(arr, 0, arr.length);
     }
 
+    /**
+     * Sorts the list using insertion sort.
+     * 
+     * @param <E>  type of elements in the list
+     * @param list list to be sorted
+     */
     public static <E extends Comparable<E>> void insertionSort(List<E> list) {
         insertionSort(list, 0, list.size());
     }
@@ -112,6 +124,15 @@ public class Sort {
         }
     }
 
+    /**
+     * takes a list which is sorted except for the last element and inserts
+     * the item list.get(list.size() - 1) into the rest of the list. Undefined
+     * behavior if the
+     * list is not sorted.
+     * <p>
+     * Unlike the array version, this method does not use a start and end index.
+     * Use {@link List#subList(int, int)} to get a sublist to sort.
+     */
     static <E extends Comparable<E>> void binaryInsert(List<E> list) {
         if (list.size() == 0) {
             throw new IllegalArgumentException("empty list, no item to insert");
@@ -170,10 +191,22 @@ public class Sort {
         }
     }
 
+    /**
+     * Sorts this array using binary insertion sort. This is a stable sort.
+     * 
+     * @param <E> the type of elements in this array
+     * @param arr array to be sorted
+     */
     public static <E extends Comparable<E>> void binaryInsertionSort(E[] arr) {
         binaryInsertionSort(arr, 0, arr.length);
     }
 
+    /**
+     * Sorts this list using binary insertion sort. This is a stable sort.
+     * 
+     * @param <E>  the type of elements in this list
+     * @param list list to be sorted
+     */
     public static <E extends Comparable<E>> void binaryInsertionSort(List<E> list) {
         if (list.size() <= 1) {
             return;
@@ -183,10 +216,19 @@ public class Sort {
         }
     }
 
+    /**
+     * Sorts this array using merge sort. This is a stable sort.
+     * 
+     * @param <E> the type of elements in this array
+     * @param arr array to be sorted
+     */
     public static <E extends Comparable<E>> void mergeSort(E[] arr) {
         throw new UnsupportedOperationException("not implemented");
     }
 
+    /**
+     * Merge two sorted arrays into one sorted array.
+     */
     static <E extends Comparable<E>> E[] merge(E[] arr1, E[] arr2) {
         int i1 = 0;
         int i2 = 0;
@@ -207,6 +249,9 @@ public class Sort {
         return merged;
     }
 
+    /**
+     * Merge two sorted lists into one sorted list.
+     */
     static <E extends Comparable<E>> List<E> merge(List<E> list1, List<E> list2) {
         int i1 = 0;
         int i2 = 0;
