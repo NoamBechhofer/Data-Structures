@@ -1,9 +1,9 @@
-// TODO: Remove all inheritDoc tags and write out full documentation
 // TODO: testing
 
 package com.noambechhofer.datastructures;
 
 import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +22,8 @@ import com.noambechhofer.datastructures.utils.DuplicateElementException;
  * {@link HashMap<Integer, E>}.
  * The aim is to compromise by having all significant methods run in O(n)
  */
-public class SetList<E> implements List<E>, Set<E> {
+// AbstractList provides a sublist and spliterator implementation, which saves me a lot of work
+public class SetList<E> extends AbstractList<E> implements Set<E> {
     private class SetListIterator implements ListIterator<E> {
         /**
          * On a theoretical level, this points between the elements which would be
@@ -117,6 +118,7 @@ public class SetList<E> implements List<E>, Set<E> {
 
             SetList.this.remove(curr);
             canMutate = false;
+            modCount++;
         }
 
         /**
@@ -135,12 +137,16 @@ public class SetList<E> implements List<E>, Set<E> {
             } else {
                 set(cursor, e, true);
             }
+
+            modCount++;
         }
 
         @Override
         public void add(E e) {
             SetList.this.add(cursor++, e);
             canMutate = false;
+
+            modCount++;
         }
 
         /**
@@ -156,6 +162,8 @@ public class SetList<E> implements List<E>, Set<E> {
             }
 
             validateIndex(index);
+
+            modCount++;
 
             return map.put(index, element);
         }
@@ -358,7 +366,6 @@ public class SetList<E> implements List<E>, Set<E> {
         }
 
         addInternal(size(), e);
-
         return true;
     }
 
@@ -453,7 +460,7 @@ public class SetList<E> implements List<E>, Set<E> {
         }
 
         map.remove(i);
-
+        modCount++;
         return ret;
     }
 
@@ -464,6 +471,7 @@ public class SetList<E> implements List<E>, Set<E> {
     @Override
     public void clear() {
         map.clear();
+        modCount++;
     }
 
     /**
@@ -501,6 +509,7 @@ public class SetList<E> implements List<E>, Set<E> {
             throw new DuplicateElementException();
         }
 
+        modCount++;
         return map.put(index, element);
     }
 
@@ -556,18 +565,22 @@ public class SetList<E> implements List<E>, Set<E> {
         return indexOf(o);
     }
 
-    /** Not yet supported. */
+    /**
+     * Creates a Spliterator over the elements in this SetList.
+     * <p>
+     * The Spliterator reports Spliterator.SIZED and Spliterator.ORDERED.
+     * @return a Spliterator over the elements in this SetList
+     */
     @Override
+    /*
+     * Suppressing warnings justification:
+     * SonarLint thinks if i remove this method I can simply inherit it. That 
+     * should work, but java is being weird about implementing spliterator from 
+     * both List and Set.
+     */
+    @SuppressWarnings("java:S125")
     public Spliterator<E> spliterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'subList'");
-    }
-
-    /** Not yet supported. */
-    @Override
-    public List<E> subList(int fromIndex, int toIndex) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'subList'");
+        return super.spliterator();
     }
 
     /**
@@ -604,7 +617,10 @@ public class SetList<E> implements List<E>, Set<E> {
      * depending on the index.
      */
     private void addInternal(int index, E ele) {
-        validateIndex(index);
+        // cannot use validateIndex() because we consider size() valid here
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
+        }
 
         if (index < size()) {
             for (int i = size(); i > index; i--) {
@@ -613,6 +629,7 @@ public class SetList<E> implements List<E>, Set<E> {
         }
 
         map.put(index, ele);
+        modCount++;
     }
 
     private void validateIndex(int index) {
