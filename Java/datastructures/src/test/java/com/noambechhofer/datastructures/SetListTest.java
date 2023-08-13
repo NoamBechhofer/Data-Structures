@@ -3,7 +3,9 @@ package com.noambechhofer.datastructures;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 // import com.noambechhofer.datastructures.DuplicateElementException;
@@ -11,6 +13,103 @@ import org.junit.jupiter.api.Test;
 import com.noambechhofer.datastructures.utils.DuplicateElementException;
 
 public class SetListTest {
+        @Test
+    void testSize() {
+        SetList<String> list = new SetList<>();
+        assertEquals(0, list.size());
+        list.add("Test");
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void testIsEmpty() {
+        SetList<String> list = new SetList<>();
+        assertTrue(list.isEmpty());
+        list.add("Test");
+        assertFalse(list.isEmpty());
+    }
+
+    @Test
+    void testContains() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertTrue(list.contains("Test"));
+        assertFalse(list.contains("Other"));
+    }
+
+    @Test
+    void testAdd() {
+        SetList<String> list = new SetList<>();
+        assertTrue(list.add("Test"));
+        assertFalse(list.add("Test"));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void testAddAtIndex() {
+        SetList<String> list = new SetList<>();
+        list.add(0, "Test");
+        assertThrows(DuplicateElementException.class, () -> list.add(0, "Test"));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void testRemoveObject() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertTrue(list.remove("Test"));
+        assertFalse(list.remove("Test"));
+    }
+
+    @Test
+    void testRemoveAtIndex() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertEquals("Test", list.remove(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> list.remove(0));
+    }
+
+    @Test
+    void testClear() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        list.clear();
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void testGet() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertEquals("Test", list.get(0));
+        assertThrows(IndexOutOfBoundsException.class, () -> list.get(1));
+    }
+
+    @Test
+    void testSet() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertThrows(DuplicateElementException.class, () -> list.set(0, "Test"));
+        assertEquals("Test", list.set(0, "NewValue"));
+        assertThrows(IndexOutOfBoundsException.class, () -> list.set(1, "Other"));
+    }
+
+    @Test
+    void testIndexOf() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertEquals(0, list.indexOf("Test"));
+        assertEquals(-1, list.indexOf("Other"));
+    }
+
+    @Test
+    void testLastIndexOf() {
+        SetList<String> list = new SetList<>();
+        list.add("Test");
+        assertEquals(0, list.lastIndexOf("Test"));
+        assertEquals(-1, list.lastIndexOf("Other"));
+    }
+
     @Test
     public void testSort() {
         SetList<Integer> sl = new SetList<>();
@@ -37,7 +136,7 @@ public class SetListTest {
     }
 
     @Test
-    public void testAdd() {
+    public void testAdd3() {
         SetList<Integer> sl = new SetList<>();
 
         sl.add(1);
@@ -77,12 +176,12 @@ public class SetListTest {
     }
 
     @Test
-    public void testClear() {
+    public void testClear2() {
 
     }
 
     @Test
-    public void testContains() {
+    public void testContains2() {
         SetList<Integer> list = new SetList<>();
 
         list.add(1);
@@ -97,27 +196,39 @@ public class SetListTest {
     }
 
     @Test
-    public void testGet() {
+    public void testGet2() {
+        SetList<Integer> list = new SetList<>();
 
+        list.add(1);
+        list.add(2);
+
+        assertEquals(1, list.get(0));
+        assertEquals(2, list.get(1));
     }
 
     @Test
-    public void testIndexOf() {
+    public void testIndexOf2() {
+        SetList<Integer> list = new SetList<>();
 
+        list.add(1);
+        list.add(2);
+
+        assertEquals(0, list.indexOf(1));
+        assertEquals(1, list.indexOf(2));
     }
 
     @Test
-    public void testIsEmpty() {
-
+    public void testIsEmpty2() {
+        List<Integer> list = new SetList<>();
+        assertTrue(list.isEmpty());
+        list.add(1);
+        assertFalse(list.isEmpty());
+        list.remove(0);
+        assertTrue(list.isEmpty());
     }
 
     @Test
     public void testIterator() {
-
-    }
-
-    @Test
-    public void testLastIndexOf() {
 
     }
 
@@ -148,16 +259,6 @@ public class SetListTest {
 
     @Test
     public void testRetainAll() {
-
-    }
-
-    @Test
-    public void testSet() {
-
-    }
-
-    @Test
-    public void testSize() {
 
     }
 
