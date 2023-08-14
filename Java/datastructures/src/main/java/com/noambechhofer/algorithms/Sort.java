@@ -4,7 +4,18 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sort {
+/**
+ * This class contains static methods for sorting arrays and lists.
+ * 
+ * @author Noam Bechhofer
+ */
+public final class Sort {
+    /**
+     * This class should not be instantiated.
+     */
+    private Sort() {
+    }
+
     /**
      * @param arr   array to be sorted
      * @param start inclusive
@@ -64,7 +75,7 @@ public class Sort {
     }
 
     /**
-     * takes an array which is sorted except for the last element and inserts
+     * takes a (sub)array which is sorted except for the last element and inserts
      * the item arr[end] into the rest of the array. Undefined behavior if the
      * array is not sorted.
      * 
@@ -79,48 +90,24 @@ public class Sort {
                             "start %d end %d: out of bounds for array of length %d",
                             start, end, arr.length));
         }
-        if (start > end) {
+
+        int numElements = (end - start) + 1;
+        if (numElements < 1) {
             throw new IllegalArgumentException(
                     String.format(
                             "start %d end %d: end must be greater than start",
                             start, end));
-        }
-        if (arr.length == 1 || arr[end].compareTo(arr[end - 1]) > 0) { // already sorted
-            return;
-        } else if (end == start + 1) {
+        } else if (numElements == 1 || arr[end].compareTo(arr[end - 1]) > 0) {
+            // already sorted
+        } else if (numElements == 2) { // just swap if necessary
             if (arr[end].compareTo(arr[start]) < 0) {
                 E tmp = arr[start];
                 arr[start] = arr[end];
                 arr[end] = tmp;
             }
         } else {
-            E item = arr[end];
-            int middleIndex = start + (end - start) / 2;
-            E middle = arr[middleIndex];
-            int cmp = item.compareTo(middle);
-            if (cmp < 0) {
-                for (int i = end; i > middleIndex; i--) {
-                    arr[i] = arr[i - 1];
-                }
-                arr[middleIndex] = item;
-                binaryInsert(arr, start, middleIndex);
-            } else if (cmp > 0) {
-                binaryInsert(arr, middleIndex + 1, end);
-            } else {
-                int idx = middleIndex;
-                /*
-                 * seek idx to the last occurence of this element. This makes
-                 * this insertion stable in that it preserves the order of equal
-                 * elements:
-                 */
-                while (idx < end - 1 && arr[idx].compareTo(arr[idx + 1]) == 0) {
-                    idx++;
-                }
-                for (int i = end; i > idx + 1; i--) {
-                    arr[i] = arr[i - 1];
-                }
-                arr[idx + 1] = item;
-            }
+            // three or more elements
+            binaryInsertMachinery(arr, start, end);
         }
     }
 
@@ -134,11 +121,10 @@ public class Sort {
      * Use {@link List#subList(int, int)} to get a sublist to sort.
      */
     static <E extends Comparable<E>> void binaryInsert(List<E> list) {
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             throw new IllegalArgumentException("empty list, no item to insert");
-        }
-        if (list.size() == 1 || list.get(list.size() - 1).compareTo(list.get(list.size() - 2)) > 0) { // already sorted
-            return;
+        } else if (list.size() == 1 || list.get(list.size() - 1).compareTo(list.get(list.size() - 2)) > 0) {
+            // already sorted
         } else if (list.size() == 2) {
             if (list.get(1).compareTo(list.get(0)) < 0) {
                 E tmp = list.get(0);
@@ -146,33 +132,68 @@ public class Sort {
                 list.set(1, tmp);
             }
         } else {
-            E item = list.get(list.size() - 1);
-            int middleIndex = list.size() / 2;
-            E middle = list.get(middleIndex);
-            int cmp = item.compareTo(middle);
-            if (cmp < 0) {
-                for (int i = list.size() - 1; i > middleIndex; i--) {
-                    list.set(i, list.get(i - 1));
-                }
-                list.set(middleIndex, item);
-                binaryInsert(list.subList(0, middleIndex + 1));
-            } else if (cmp > 0) {
-                binaryInsert(list.subList(middleIndex + 1, list.size()));
-            } else {
-                int idx = middleIndex;
-                /*
-                 * seek idx to the last occurence of this element. This makes
-                 * this insertion stable in that it preserves the order of equal
-                 * elements:
-                 */
-                while (idx < list.size() - 2 && list.get(idx).compareTo(list.get(idx + 1)) == 0) {
-                    idx++;
-                }
-                for (int i = list.size() - 1; i > idx + 1; i--) {
-                    list.set(i, list.get(i - 1));
-                }
-                list.set(idx + 1, item);
+            binaryInsertMachinery(list);
+        }
+
+    }
+
+    private static <E extends Comparable<E>> void binaryInsertMachinery(E[] arr, int start, int end) {
+        E item = arr[end];
+        int middleIndex = start + (end - start) / 2;
+        E middle = arr[middleIndex];
+        int cmp = item.compareTo(middle);
+        if (cmp < 0) {
+            for (int i = end; i > middleIndex; i--) {
+                arr[i] = arr[i - 1];
             }
+            arr[middleIndex] = item;
+            binaryInsert(arr, start, middleIndex);
+        } else if (cmp > 0) {
+            binaryInsert(arr, middleIndex + 1, end);
+        } else /* cmp == 0 */ {
+            int idx = middleIndex;
+            /*
+             * seek idx to the last occurence of this element. This makes
+             * this insertion stable in that it preserves the order of equal
+             * elements:
+             */
+            while (idx < end - 1 && arr[idx].compareTo(arr[idx + 1]) == 0) {
+                idx++;
+            }
+            for (int i = end; i > idx + 1; i--) {
+                arr[i] = arr[i - 1];
+            }
+            arr[idx + 1] = item;
+        }
+    }
+
+    private static <E extends Comparable<E>> void binaryInsertMachinery(List<E> list) {
+        E item = list.get(list.size() - 1);
+        int middleIndex = list.size() / 2;
+        E middle = list.get(middleIndex);
+        int cmp = item.compareTo(middle);
+        if (cmp < 0) {
+            for (int i = list.size() - 1; i > middleIndex; i--) {
+                list.set(i, list.get(i - 1));
+            }
+            list.set(middleIndex, item);
+            binaryInsert(list.subList(0, middleIndex + 1));
+        } else if (cmp > 0) {
+            binaryInsert(list.subList(middleIndex + 1, list.size()));
+        } else /* cmp == 0 */ {
+            int idx = middleIndex;
+            /*
+             * seek idx to the last occurence of this element. This makes
+             * this insertion stable in that it preserves the order of equal
+             * elements:
+             */
+            while (idx < list.size() - 2 && list.get(idx).compareTo(list.get(idx + 1)) == 0) {
+                idx++;
+            }
+            for (int i = list.size() - 1; i > idx + 1; i--) {
+                list.set(i, list.get(i - 1));
+            }
+            list.set(idx + 1, item);
         }
     }
 
@@ -241,7 +262,7 @@ public class Sort {
                 merged[i] = arr1[i1++];
             } else if (arr1[i1].compareTo(arr2[i2]) < 0) {
                 merged[i] = arr1[i1++];
-            } else {
+            } else /* arr1[i1].compareTo(arr2[i2]) >= 0 */ {
                 merged[i] = arr2[i2++];
             }
         }
@@ -264,7 +285,7 @@ public class Sort {
                 merged.add(list1.get(i1++));
             } else if (list1.get(i1).compareTo(list2.get(i2)) < 0) {
                 merged.add(list1.get(i1++));
-            } else {
+            } else /* list1.get(i1).compareTo(list2.get(i2)) >= 0 */ {
                 merged.add(list2.get(i2++));
             }
         }
