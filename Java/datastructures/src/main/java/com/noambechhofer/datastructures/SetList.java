@@ -1,5 +1,3 @@
-// TODO: testing
-
 package com.noambechhofer.datastructures;
 
 import java.lang.reflect.Array;
@@ -22,7 +20,15 @@ import com.noambechhofer.datastructures.utils.DuplicateElementException;
  * {@link HashMap<Integer, E>}.
  * The aim is to compromise by having all significant methods run in O(n)
  */
-// AbstractList provides a sublist and spliterator implementation, which saves me a lot of work
+@SuppressWarnings("java:S2160")
+/*
+ * SuppressWarnings justification:
+ * Note that this class extends AbstractList.
+ * Using AbstractList provides a sublist and spliterator implementation, which
+ * saves me a lot of work.
+ * SonarLint complains that I have not implemented equals() and hashCode(), but
+ * these are already implemented by AbstractList.
+ */
 public class SetList<E> extends AbstractList<E> implements Set<E> {
     private class SetListIterator implements ListIterator<E> {
         /**
@@ -55,7 +61,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
             canMutate = false;
         }
 
-        public SetListIterator(int index) {
+        public SetListIterator(final int index) {
             validateIndex(index);
 
             cursor = index;
@@ -71,7 +77,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
         public E next() {
             try {
                 curr = get(cursor++);
-            } catch (IndexOutOfBoundsException e) {
+            } catch (final IndexOutOfBoundsException e) {
                 throw new NoSuchElementException(e);
             }
 
@@ -90,7 +96,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
         public E previous() {
             try {
                 curr = get(--cursor);
-            } catch (IndexOutOfBoundsException e) {
+            } catch (final IndexOutOfBoundsException e) {
                 throw new NoSuchElementException(e);
             }
 
@@ -127,7 +133,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
          * inserting a duplicate.
          */
         @Override
-        public void set(E e) {
+        public void set(final E e) {
             if (!canMutate) {
                 throw new IllegalStateException();
             }
@@ -142,7 +148,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
         }
 
         @Override
-        public void add(E e) {
+        public void add(final E e) {
             SetList.this.add(cursor++, e);
             canMutate = false;
 
@@ -155,8 +161,16 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
          * ! duplicates to be inserted. The utility is to allow
          * ! {@link Collections#sort(List)} to work on this class. Use with extreme
          * ! caution.
+         * 
+         * @param index   index at which the specified element is to be inserted
+         * @param element element to be inserted
+         * @param force   if true, will insert the element even if it's a duplicate
+         * @return the element previously at the specified position
+         * @throws IndexOutOfBoundsException if the index is out of range
+         * @throws DuplicateElementException if the element is already in the list and
+         *                                   force is false
          */
-        private E set(int index, E element, boolean force) {
+        private E set(final int index, final E element, final boolean force) {
             if (!force) {
                 SetList.this.set(index, element);
             }
@@ -165,18 +179,30 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
 
             modCount++;
 
-            return map.put(index, element);
+            elementMap.put(element, index);
+            return indexMap.put(index, element);
         }
     }
 
     /** Maps indices to their corresponding elements */
-    private HashMap<Integer, E> map;
+    private final HashMap<Integer, E> indexMap;
+    /** 
+     * Maps elements to their corresponding indices.
+     * <p>
+     * Using a reverse HashMap allows us to accomplish indexOf() in O(1) time.
+     * The tradeoff is space, however since Java uses Object references, the
+     * space cost is not too bad.
+     * Also we have to maintain two HashMaps, which is a bit
+     * more work.
+     */
+    private final HashMap<E, Integer> elementMap;
 
     /**
      * Standard constructor.
      */
     public SetList() {
-        this.map = new HashMap<>();
+        this.indexMap = new HashMap<>();
+        this.elementMap = new HashMap<>();
     }
 
     /**
@@ -186,7 +212,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      */
     @Override
     public int size() {
-        return map.size();
+        return indexMap.size();
     }
 
     /**
@@ -196,7 +222,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      */
     @Override
     public boolean isEmpty() {
-        return this.map.isEmpty();
+        return this.indexMap.isEmpty();
     }
 
     /**
@@ -206,8 +232,8 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * @return {@code true} if this SetList contains the specified element.
      */
     @Override
-    public boolean contains(Object o) {
-        return this.map.containsValue(o);
+    public boolean contains(final Object o) {
+        return this.elementMap.containsKey(o);
     }
 
     /**
@@ -255,7 +281,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *                                   || index > size())
      */
     @Override
-    public ListIterator<E> listIterator(int index) {
+    public ListIterator<E> listIterator(final int index) {
         return new SetListIterator(index);
     }
 
@@ -319,7 +345,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(final T[] a) {
         T[] arr = a;
 
         if (a.length < size()) {
@@ -327,7 +353,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
         }
 
         for (int i = 0; i < size(); i++) {
-            E curr = get(i);
+            final E curr = get(i);
 
             if (!a.getClass().getComponentType().isAssignableFrom(curr.getClass())) {
                 throw new ArrayStoreException();
@@ -360,7 +386,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * @return true if the element is not already present in the list.
      */
     @Override
-    public boolean add(E e) {
+    public boolean add(final E e) {
         if (this.contains(e)) {
             return false;
         }
@@ -386,8 +412,8 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *                                   index > size())
      */
     @Override
-    public void add(int index, E element) {
-        if (map.containsValue(element)) {
+    public void add(final int index, final E element) {
+        if (elementMap.containsKey(element)) {
             throw new DuplicateElementException();
         }
 
@@ -399,7 +425,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * multiple calls to {@link #add(Object)}
      */
     @Override
-    public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(final Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -408,7 +434,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * multiple calls to {@link #add(int, Object)}
      */
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
+    public boolean addAll(final int index, final Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -426,7 +452,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * @return {@code true} if this list contained the specified element
      */
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(final Object o) {
         for (int i = 0; i < size(); i++) {
             if (Objects.equals(o, get(i))) {
                 remove(i);
@@ -449,17 +475,20 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *                                   {@code (index &lt; 0 || index >= size())}
      */
     @Override
-    public E remove(int index) {
+    public E remove(final int index) {
         validateIndex(index);
 
-        E ret = map.remove(index);
+        final E ret = indexMap.remove(index);
+        elementMap.remove(ret);
 
         int i = index;
         for (; i < size(); i++) {
-            map.put(i, get(i + 1));
+            final E val = get(i + 1);
+            elementMap.put(val, i);
+            indexMap.put(i, val);
         }
 
-        map.remove(i);
+        indexMap.remove(i);
         modCount++;
         return ret;
     }
@@ -470,7 +499,8 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      */
     @Override
     public void clear() {
-        map.clear();
+        elementMap.clear();
+        indexMap.clear();
         modCount++;
     }
 
@@ -483,10 +513,10 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *                                   {@code (index < 0 || index >= size())}
      */
     @Override
-    public E get(int index) {
+    public E get(final int index) {
         validateIndex(index);
 
-        return map.get(index);
+        return indexMap.get(index);
     }
 
     /**
@@ -503,14 +533,15 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *                                   {@code (index < 0 || index >= size())}
      */
     @Override
-    public E set(int index, E element) {
+    public E set(final int index, final E element) {
         validateIndex(index);
-        if (map.containsValue(element)) {
+        if (elementMap.containsKey(element)) {
             throw new DuplicateElementException();
         }
 
         modCount++;
-        return map.put(index, element);
+        elementMap.put(element, index);
+        return indexMap.put(index, element);
     }
 
     /**
@@ -534,9 +565,9 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * probably open an issue on their github. Oh well.
      */
     @SuppressWarnings("java:S864")
-    public int indexOf(Object o) {
+    public int indexOf(final Object o) {
         for (int i = 0; i < size(); i++) {
-            E curr = get(i);
+            final E curr = get(i);
             if (o == null ? curr == null : o.equals(curr)) {
                 return i;
             }
@@ -561,7 +592,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      *
      */
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(final Object o) {
         return indexOf(o);
     }
 
@@ -569,13 +600,14 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * Creates a Spliterator over the elements in this SetList.
      * <p>
      * The Spliterator reports Spliterator.SIZED and Spliterator.ORDERED.
+     * 
      * @return a Spliterator over the elements in this SetList
      */
     @Override
     /*
      * Suppressing warnings justification:
-     * SonarLint thinks if i remove this method I can simply inherit it. That 
-     * should work, but java is being weird about implementing spliterator from 
+     * SonarLint thinks if i remove this method I can simply inherit it. That
+     * should work, but java is being weird about implementing spliterator from
      * both List and Set.
      */
     @SuppressWarnings("java:S125")
@@ -588,7 +620,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * multiple calls to {@link #remove(Object)}
      */
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(final Collection<?> c) {
         throw new UnsupportedOperationException("Unimplemented method 'removeAll'");
     }
 
@@ -597,7 +629,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * multiple calls to {@link #contains(Object)}
      */
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(final Collection<?> c) {
         throw new UnsupportedOperationException("Unimplemented method 'containsAll'");
     }
 
@@ -606,7 +638,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * multiple calls to {@link #remove(Object)}
      */
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(final Collection<?> c) {
         throw new UnsupportedOperationException("Unimplemented method 'retainAll'");
     }
 
@@ -616,7 +648,7 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
      * Runs in O(n) because elements may need to be shunted over to make room
      * depending on the index.
      */
-    private void addInternal(int index, E ele) {
+    private void addInternal(final int index, final E ele) {
         // cannot use validateIndex() because we consider size() valid here
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
@@ -624,17 +656,42 @@ public class SetList<E> extends AbstractList<E> implements Set<E> {
 
         if (index < size()) {
             for (int i = size(); i > index; i--) {
-                map.put(i, get(i - 1));
+                final E val = get(i - 1);
+                elementMap.put(val, i);
+                indexMap.put(i, val);
             }
         }
 
-        map.put(index, ele);
+        elementMap.put(ele, index);
+        indexMap.put(index, ele);
         modCount++;
     }
 
-    private void validateIndex(int index) {
+    /**
+     * @param index index to validate
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 ||
+     *                                   index >= size())
+     */
+    private void validateIndex(final int index) {
         if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size()));
         }
     }
+
+    // void dataStructureInvariants() {
+    // assert elementMap.size() == indexMap.size();
+    // assert elementMap.size() == size();
+    // assert indexMap.size() == size();
+    // assert indexMap.keySet().stream().allMatch((Integer idx) -> {
+    // E ele = indexMap.get(idx);
+    // return elementMap.containsKey(indexMap.get(idx)) &&
+    // elementMap.get(ele).equals(idx);
+    // });
+    // assert elementMap.keySet().stream().allMatch((E ele) -> {
+    // int idx = elementMap.get(ele);
+    // return indexMap.containsKey(idx) && elementMap.get(ele).equals(idx) && idx ==
+    // indexOf(ele);
+    // });
+    // }
+
 }
